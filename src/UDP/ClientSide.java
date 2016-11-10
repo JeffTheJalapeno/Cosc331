@@ -31,6 +31,9 @@ public class ClientSide {
      */
     public static void main(String[] args) {
         // TODO code application logic here
+        //String IP = (String)JOptionPane.showInputDialog("Please enter the IP address of the host computer\nusing . separating the numbers.");
+        //String hostName = (String)JOptionPane.showInputDialog("Please enter name of the host computer exactly.");
+        
         String IP = "10.103.48.140";
         String hostName = "DESKTOP-4S77T69";
         connectToHost(IP, hostName);
