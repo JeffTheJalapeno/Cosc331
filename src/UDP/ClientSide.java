@@ -23,6 +23,7 @@ public class ClientSide {
 
     private static DatagramSocket socket;
     private static HashSet<SocketAddress> group;
+    private static InetAddress thisAddr;
     private static InetAddress addr;
     private static boolean firstTime;
     private static String messageToSend;
@@ -61,10 +62,11 @@ public class ClientSide {
                 IPv4[i] = (byte)j;
             }
             addr = InetAddress.getByAddress(hostName, IPv4); 
-            
+            thisAddr = InetAddress.getLocalHost();
             System.out.println(addr.isReachable(10000));
-            byte[] buffer = new byte[1024];
-            DatagramPacket p = new DatagramPacket(buffer,1024,addr,4000);
+            String s = thisAddr.getHostName() + " has joined the room.";
+            byte[] buffer = s.getBytes();
+            DatagramPacket p = new DatagramPacket(buffer,buffer.length,addr,4000);
             socket.send(p);
         }
         catch(SocketException e){
@@ -91,7 +93,7 @@ public class ClientSide {
             System.out.println(message);
             
             if(in.hasNext()){
-                messageToSend = in.nextLine();
+                messageToSend = thisAddr.getHostName() + "-->" + in.nextLine();
                 buffer = messageToSend.getBytes();
                 DatagramPacket p = new DatagramPacket(buffer,buffer.length,addr,4000);
                 socket.send(p);

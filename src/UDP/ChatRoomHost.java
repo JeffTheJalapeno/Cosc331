@@ -59,11 +59,11 @@ public class ChatRoomHost {
                 socket.receive(packet);
                 firstTime = group.add(packet.getSocketAddress());
                 for(SocketAddress s: group){
-                    if(firstTime){
-                        String greeting = "Hi all";
-                        DatagramPacket gr = new DatagramPacket(greeting.getBytes(),greeting.getBytes().length,s);
-                        socket.send(gr);
-                    }
+//                    if(firstTime){
+//                        String greeting = "Hi all";
+//                        DatagramPacket gr = new DatagramPacket(greeting.getBytes(),greeting.getBytes().length,s);
+//                        socket.send(gr);
+//                    }
                     System.out.println(s);
                     DatagramPacket p = new DatagramPacket(buffer,1024,s);
                     socket.send(p);

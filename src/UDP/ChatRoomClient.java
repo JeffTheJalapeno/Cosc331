@@ -26,19 +26,21 @@ public class ChatRoomClient extends javax.swing.JFrame {
      */
     public ChatRoomClient() {
         initComponents();
-        firstMessage = true;
-        messageToSend = "";
-        String IP = "10.103.48.140";
-        String hostName = "DESKTOP-4S77T69";
-        connectToHost(IP, hostName);
+        this.setVisible(true);
+    }
+    public void startChatting(){
         try{
+            firstMessage = true;
+            messageToSend = false;
+            String IP = "10.103.48.140";
+            String hostName = "DESKTOP-4S77T69";
+            connectToHost(IP, hostName);
             sendAndRecieve();
         }
         catch(Exception e){
             
         }
     }
-
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -54,11 +56,6 @@ public class ChatRoomClient extends javax.swing.JFrame {
         txtMessage = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        addWindowListener(new java.awt.event.WindowAdapter() {
-            public void windowActivated(java.awt.event.WindowEvent evt) {
-                formWindowActivated(evt);
-            }
-        });
 
         txtMessages.setColumns(20);
         txtMessages.setRows(5);
@@ -104,13 +101,9 @@ public class ChatRoomClient extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnSendMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnSendMousePressed
-        messageToSend = txtMessage.getText();
-        txtMessage.setText("");
-    }//GEN-LAST:event_btnSendMousePressed
-
-    private void formWindowActivated(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowActivated
+        messageToSend = true;
         
-    }//GEN-LAST:event_formWindowActivated
+    }//GEN-LAST:event_btnSendMousePressed
 
     /**
      * @param args the command line arguments
@@ -118,9 +111,10 @@ public class ChatRoomClient extends javax.swing.JFrame {
     private static boolean firstMessage;
     private static DatagramSocket socket;
     private static HashSet<SocketAddress> group;
+    private static InetAddress thisAddr;
     private static InetAddress addr;
     private static boolean firstTime;
-    private static String messageToSend;
+    private boolean messageToSend;
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -149,11 +143,17 @@ public class ChatRoomClient extends javax.swing.JFrame {
         
         
         /* Create and display the form */
-        
-        new ChatRoomClient().setVisible(true);
-        
-        
-        
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                ChatRoomClient form = new ChatRoomClient();
+                //form.setVisible(true);
+                
+                form.startChatting();
+            }
+        });
+//        ChatRoomClient form = new ChatRoomClient();
+//        form.setVisible(true);
+//        form.startChatting();
     }
     
     private void connectToHost(String IP, String hostName){
@@ -173,10 +173,11 @@ public class ChatRoomClient extends javax.swing.JFrame {
                 IPv4[i] = (byte)j;
             }
             addr = InetAddress.getByAddress(hostName, IPv4); 
-            
+            thisAddr = InetAddress.getLocalHost();
             System.out.println(addr.isReachable(10000));
-            byte[] buffer = new byte[1024];
-            DatagramPacket p = new DatagramPacket(buffer,1024,addr,4000);
+            String s = thisAddr.getHostName() + " has joined the room.";
+            byte[] buffer = s.getBytes();
+            DatagramPacket p = new DatagramPacket(buffer,buffer.length,addr,4000);
             socket.send(p);
         }
         catch(SocketException e){
@@ -191,7 +192,8 @@ public class ChatRoomClient extends javax.swing.JFrame {
         }
     }
     private void sendAndRecieve() throws Exception{
-        
+        String s;
+        Scanner in = new Scanner(System.in);
         while(true){
             
             byte[] buffer = new byte[1024];
@@ -200,13 +202,15 @@ public class ChatRoomClient extends javax.swing.JFrame {
             String message = "";
             for(byte b : buffer)
                 message += (char)b + "";
-            txtMessages.setText(txtMessages.getText() + "\n" + message);
-            if (!(messageToSend.equals(""))){
-                System.out.println(message);
-                buffer = messageToSend.getBytes();
-                DatagramPacket p = new DatagramPacket(buffer,1024,addr,4000);
+            System.out.println(message);
+            
+            if(messageToSend){
+                s = thisAddr.getHostName() + "-->" + txtMessage.getText();
+                buffer = s.getBytes();
+                DatagramPacket p = new DatagramPacket(buffer,buffer.length,addr,4000);
                 socket.send(p);
-                messageToSend = "";
+                messageToSend = false;
+                txtMessage.setText("");
             }
         }
     }
