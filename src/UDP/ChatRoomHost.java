@@ -58,13 +58,14 @@ public class ChatRoomHost {
                 DatagramPacket packet = new DatagramPacket(buffer,buffer.length);
                 socket.receive(packet);
                 firstTime = group.add(packet.getSocketAddress());
+                System.out.println("Receiving-->" + packet.getSocketAddress());
                 for(SocketAddress s: group){
-//                    if(firstTime){
-//                        String greeting = "Hi all";
-//                        DatagramPacket gr = new DatagramPacket(greeting.getBytes(),greeting.getBytes().length,s);
-//                        socket.send(gr);
-//                    }
-                    System.out.println(s);
+                    if(firstTime){
+                        String greeting = "Hi all";
+                        //DatagramPacket gr = new DatagramPacket(greeting.getBytes(),greeting.getBytes().length,s);
+                        //socket.send(gr);
+                    }
+                    System.out.println("Sending-->" + s);
                     DatagramPacket p = new DatagramPacket(buffer,1024,s);
                     socket.send(p);
                 }

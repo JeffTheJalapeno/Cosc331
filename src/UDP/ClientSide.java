@@ -11,6 +11,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketAddress;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.HashSet;
 import java.util.Scanner;
@@ -22,11 +23,8 @@ import java.util.Scanner;
 public class ClientSide {
 
     private static DatagramSocket socket;
-    private static HashSet<SocketAddress> group;
     private static InetAddress thisAddr;
     private static InetAddress addr;
-    private static boolean firstTime;
-    private static String messageToSend;
     /**
      * @param args the command line arguments
      */
@@ -81,24 +79,45 @@ public class ClientSide {
         }
     }
     private static void sendAndRecieve() throws Exception{
-        Scanner in = new Scanner(System.in);
+        //Scanner in = new Scanner(System.in);
+        socket.setSoTimeout(1000);
         while(true){
             
+            String messageToSend, messageR;
+            messageR = receiveHelper();
+            
+            if(!(messageR.equals("")))
+                System.out.println(messageR);
+            
+            if(System.in.available() > 0){
+                messageToSend = thisAddr.getHostName() + "-->";
+                byte sending[] = new byte[1024];
+                System.in.read(sending);
+                for(byte b : sending)
+                    messageToSend += (char)b + "";
+                DatagramPacket p = new DatagramPacket(messageToSend.getBytes(),messageToSend.getBytes().length,addr,4000);
+                socket.send(p);
+            }
+        }
+    }
+    private static String receiveHelper() throws Exception{
+        try{
             byte[] buffer = new byte[1024];
             DatagramPacket packet = new DatagramPacket(buffer,buffer.length);
             socket.receive(packet);
             String message = "";
             for(byte b : buffer)
                 message += (char)b + "";
-            System.out.println(message);
-            
-            if(in.hasNext()){
-                messageToSend = thisAddr.getHostName() + "-->" + in.nextLine();
-                buffer = messageToSend.getBytes();
-                DatagramPacket p = new DatagramPacket(buffer,buffer.length,addr,4000);
-                socket.send(p);
-                messageToSend = "";
-            }
+            return message;
+        }
+        catch(SocketTimeoutException e){
+            return "";
+        }
+        catch(SocketException e){
+            throw e;
+        }
+        catch(IOException e){
+            throw e;
         }
     }
 }
