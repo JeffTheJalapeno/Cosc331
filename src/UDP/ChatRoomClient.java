@@ -5,39 +5,33 @@
  */
 package UDP;
 
-import java.io.IOException;
-import java.net.DatagramPacket;
+import java.awt.Graphics;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.SocketAddress;
-import java.net.SocketException;
-import java.net.SocketTimeoutException;
-import java.net.UnknownHostException;
-import java.util.HashSet;
-import java.util.Scanner;
-import javax.swing.JOptionPane;
+import java.util.ArrayList;
+import javax.swing.Timer;
 /**
  *
  * @author jthha
  */
-public class ChatRoomClient extends javax.swing.JFrame {
-
+public class ChatRoomClient extends javax.swing.JFrame implements ActionListener {
+    ClientSideServer chatting;
+    private final Timer timer = new Timer(1000,this);
     /**
      * Creates new form ChatRoomClient
      */
     public ChatRoomClient() {
         initComponents();
+        setVisible(true);
+        chatting = new ClientSideServer();
+        chatting.start();
+        timer.start();
     }
-    public void startChatting()throws Exception{
-        //try{
-            String IP = "10.103.48.140";
-            String hostName = "DESKTOP-4S77T69";
-            connectToHost(IP, hostName);
-            recieveMessages();
-        //}
-        //catch(Exception e){
-            
-        //}
+    @Override
+    public void actionPerformed(ActionEvent e){
+        messageListener();
     }
     /**
      * This method is called from within the constructor to initialize the form.
@@ -54,11 +48,6 @@ public class ChatRoomClient extends javax.swing.JFrame {
         txtMessage = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        addWindowListener(new java.awt.event.WindowAdapter() {
-            public void windowOpened(java.awt.event.WindowEvent evt) {
-                formWindowOpened(evt);
-            }
-        });
 
         txtMessages.setEditable(false);
         txtMessages.setColumns(20);
@@ -105,15 +94,21 @@ public class ChatRoomClient extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnSendMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnSendMousePressed
-        sendMessage(txtMessage.getText());
-        txtMessage.setText("");
-        
+        chatting.sendMessage(txtMessage.getText());
+        txtMessage.setText("");        
     }//GEN-LAST:event_btnSendMousePressed
-
-    private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
-        // TODO add your handling code here:
-    }//GEN-LAST:event_formWindowOpened
-
+    
+    private void messageListener(){
+        try{
+            String s = chatting.receive();
+            if(!(s.equals(""))){
+                txtMessages.append(s + "\n");
+            }
+        }
+        catch(Exception e){
+        }
+            
+    }
     /**
      * @param args the command line arguments
      */
@@ -146,104 +141,20 @@ public class ChatRoomClient extends javax.swing.JFrame {
         //String IP = (String)JOptionPane.showInputDialog("Please enter the IP address of the host computer\nusing . separating the numbers.");
         //String hostName = (String)JOptionPane.showInputDialog("Please enter name of the host computer exactly.");
         
-        
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
+        java.awt.EventQueue.invokeLater(new Runnable()
+                {
             public void run() {
-                
-                ChatRoomClient form = new ChatRoomClient();
-                form.setVisible(true);
                 try{
-                    form.startChatting();
+                    new ChatRoomClient().setVisible(true);
                 }
                 catch(Exception e){
                     
                 }
             }
         });
-//        ChatRoomClient form = new ChatRoomClient();
-//        form.setVisible(true);
-//        form.startChatting();
     }
     
-    private void sendMessage(String message){
-        try{
-            String s = thisAddr.getHostName() + "-->" + txtMessage.getText();
-            byte[] buffer = s.getBytes();
-            DatagramPacket p = new DatagramPacket(buffer,buffer.length,addr,4000);
-            socket.send(p);
-            txtMessage.setText("");
-        }
-        catch(IOException e){
-            
-        }
-    }
-    
-    private void connectToHost(String IP, String hostName){
-        try{
-            System.out.println(IP);
-            IP = IP.replace('.', ' ');
-            Scanner IPScanner = new Scanner(IP);
-            System.out.println(IP);
-            int port = 4005;
-            socket = new DatagramSocket(port);
-            byte IPv4[] = new byte[4];
-            System.out.println(IP);
-            for(int i = 0; i < 4; i++){
-                int j = IPScanner.nextInt();
-                if(j > 127)
-                    j = j-256;
-                IPv4[i] = (byte)j;
-            }
-            addr = InetAddress.getByAddress(hostName, IPv4); 
-            thisAddr = InetAddress.getLocalHost();
-            System.out.println(addr.isReachable(10000));
-            String s = thisAddr.getHostName() + " has joined the room.";
-            byte[] buffer = s.getBytes();
-            DatagramPacket p = new DatagramPacket(buffer,buffer.length,addr,4000);
-            socket.send(p);
-        }
-        catch(SocketException e){
-            System.out.println("we fucked up1");
-        }
-        catch(UnknownHostException e){
-            System.out.println("we fucked up2");
-        }
-        catch(IOException e){
-            System.out.println("we fucked up3");
-        }
-    }
-    private void recieveMessages() throws Exception{
-        String s;
-        Scanner in = new Scanner(System.in);
-        socket.setSoTimeout(1000);
-        while(true){
-            s = receiveHelper();
-            System.out.println(s);
-            txtMessages.setText(txtMessages.getText() + "\n" + s);
-        }
-    }
-    private String receiveHelper() throws Exception{
-        try{
-             byte[] buffer = new byte[1024];
-            DatagramPacket packet = new DatagramPacket(buffer,buffer.length);
-            socket.receive(packet);
-            String message = "";
-            for(byte b : buffer)
-                message += (char)b + "";
-            return message;
-            
-        }
-        catch(SocketTimeoutException e){
-            return "";
-        }
-        catch(SocketException e){
-            throw e;
-        }
-        catch(IOException e){
-            throw e;
-        }
-    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnSend;
