@@ -13,6 +13,7 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.Scanner;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -24,16 +25,24 @@ public class ClientSideServer{
     private DatagramSocket socket;
     private InetAddress thisAddr;
     private InetAddress addr;
+    private String ClientName;
     
     public ClientSideServer(){
-        
     }
     
     public void start(){
         String IP = "10.103.48.140";
         String hostName = "DESKTOP-4S77T69";
-        connectToHost(IP, hostName);
         
+//        String IP = (String)JOptionPane.showInputDialog("Please enter the IP address of the host computer\nusing . separating the numbers.");
+//        String hostName = (String)JOptionPane.showInputDialog("Please enter name of the host computer exactly.");
+        connectToHost(IP, hostName);
+        String thisName = (String)JOptionPane.showInputDialog(
+        "Please enter your name.");
+        if(thisName.equals(""))
+            ClientName = thisAddr.getHostName();
+        else
+            ClientName = thisName;
     }
     
     private void connectToHost(String IP, String hostName){
@@ -58,26 +67,26 @@ public class ClientSideServer{
             socket.setSoTimeout(50);
         }
         catch(SocketException e){
-            System.out.println("we fucked up1");
+            System.out.println(e);
         }
         catch(UnknownHostException e){
-            System.out.println("we fucked up2");
+            System.out.println(e);
         }
         catch(IOException e){
-            System.out.println("we fucked up3");
+            System.out.println(e);
             
         }
     }
     
     public void sendMessage(String message){
         try{
-            String s = thisAddr.getHostName() + "-->" + message;
+            String s = ClientName + "-->" + message;
             byte[] buffer = s.getBytes();
             DatagramPacket p = new DatagramPacket(buffer,buffer.length,addr,4000);
             socket.send(p);
         }
         catch(IOException e){
-            
+            System.out.println(e);
         }
     }
     

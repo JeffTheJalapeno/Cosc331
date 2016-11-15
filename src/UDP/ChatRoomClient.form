@@ -29,7 +29,7 @@
                   <Group type="102" attributes="0">
                       <Component id="txtMessage" min="-2" pref="505" max="-2" attributes="0"/>
                       <EmptySpace type="separate" max="-2" attributes="0"/>
-                      <Component id="btnSend" pref="92" max="32767" attributes="0"/>
+                      <Component id="btnSend" pref="91" max="32767" attributes="0"/>
                   </Group>
                   <Component id="jScrollPane1" max="32767" attributes="0"/>
               </Group>

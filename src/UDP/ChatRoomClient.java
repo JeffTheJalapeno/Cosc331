@@ -23,6 +23,7 @@ public class ChatRoomClient extends javax.swing.JFrame implements ActionListener
      * Creates new form ChatRoomClient
      */
     public ChatRoomClient() {
+        super("Client Side");
         initComponents();
         setVisible(true);
         chatting = new ClientSideServer();
@@ -74,7 +75,7 @@ public class ChatRoomClient extends javax.swing.JFrame implements ActionListener
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(txtMessage, javax.swing.GroupLayout.PREFERRED_SIZE, 505, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addComponent(btnSend, javax.swing.GroupLayout.DEFAULT_SIZE, 92, Short.MAX_VALUE))
+                        .addComponent(btnSend, javax.swing.GroupLayout.DEFAULT_SIZE, 91, Short.MAX_VALUE))
                     .addComponent(jScrollPane1))
                 .addContainerGap())
         );
